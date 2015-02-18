@@ -57,20 +57,51 @@ idsTest  <- scan("./UCI HAR Dataset/test/subject_test.txt",  )
 
 # begin to merge components of the data...
 yData <- c(yDataTrain, yDataTest)
-IDs   <- c(idsTrain, idsTest)
+ids   <- c(idsTrain, idsTest)
 x     <- rbind(xDataTrain, xDataTest)
 colnames(x) <- featureNames
-
-# create a vector that represents the 'type' of the subject (i.e. test 
-# vs. train)
-subjectTypes = c(rep("TRAIN", length(idsTrain)), rep("TEST", length(idsTest)))
 
 # create a vector of activity names so that the y-column in the tidied 
 # data frame is the activity names instead of their corresponding numbers
 activities <- read.table("./UCI HAR Dataset/activity_labels.txt")$V2
 y <- activities[yData]
 
-tidiedData <- data.frame(`Subject ID`=IDs, Activity=yData, x)
+# create a vector that represents the 'type' of the subject (i.e. test 
+# vs. train)
+subjectTypes = c(rep("TRAIN", length(idsTrain)), rep("TEST", length(idsTest)))
+
+# combine the subject IDs, subject types, activities and raw data!
+tidiedData <- data.frame(SubjectID=ids, SubjectType=subjectTypes, Activity=y, x)
 
 
-# print("don't forget to change the number of rows!")
+# SUMMARIZING TIDIED DATA SET =====================
+# dplyr comes in handy for mutating subsets
+library(dplyr)
+
+# define some constant vectors that will be useful for summarizing data
+# we'll use these to loop over the data frame
+IDS <- sort(unique(ids))
+ACTIVITY_NUMBERS <- 1:length(activities)
+
+# create the resultant data frame that we want
+outputData <- data.frame()
+
+# loop over each of the IDs and activity numbers to extract those chunks 
+# from the tidied data set, sum up all of the rows for each feature, and 
+# put it in the resultant data frame.
+for (id in IDS) {
+  for (a_num in ACTIVITY_NUMBERS) {
+    subsetData <- select( filter(tidiedData, Activity == a_num & SubjectID == id), -(SubjectID:Activity) )
+    summarizedData <- distinct(mutate_each(subsetData, funs(mean)))
+    
+    # get the type for this subject by checking to see if this ID is in 
+    # the vector of training IDs or not
+    subjectType <- if (is.element(id, idsTrain)) "TRAIN" else "TEST"
+    
+    outputData <- rbind(outputData, 
+                  data.frame(SubjectID=id, SubjectType=subjectType, 
+                             Activity=activities[a_num], summarizedData) )
+  }
+}
+
+write.table(outputData, "tidied_data.txt", row.name=FALSE)
