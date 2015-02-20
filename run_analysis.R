@@ -59,12 +59,12 @@ idsTest  <- scan("./UCI HAR Dataset/test/subject_test.txt",  )
 y   <- c(yDataTrain, yDataTest)
 ids <- c(idsTrain, idsTest)
 x   <- rbind(xDataTrain, xDataTest)
-colnames(x) <- gsub("()", "", featureNames, fixed=TRUE)
+featureNames <- gsub("BodyBody", "Body", gsub("()", "", featureNames, fixed=TRUE), fixed=TRUE)
+colnames(x) <- featureNames
 
 # create a vector of activity names so that the y-column in the tidied 
 # data frame is the activity names instead of their corresponding numbers
 activities <- read.table("./UCI HAR Dataset/activity_labels.txt")$V2
-
 
 # create a vector that represents the 'type' of the subject (i.e. test 
 # vs. train)
@@ -82,6 +82,7 @@ library(dplyr)
 # we'll use these to loop over the data frame
 IDS <- sort(unique(ids))
 ACTIVITY_NUMBERS <- 1:length(activities)
+IDS_TRAIN <- unique(idsTrain)
 
 # create the resultant data frame that we want
 outputData <- data.frame()
@@ -96,12 +97,15 @@ for (id in IDS) {
     
     # get the type for this subject by checking to see if this ID is in 
     # the vector of training IDs or not
-    subjectType <- if (is.element(id, idsTrain)) "TRAIN" else "TEST"
+    subjectType <- if (is.element(id, IDS_TRAIN)) "TRAIN" else "TEST"
     
     outputData <- rbind(outputData, 
                   data.frame(SubjectID=id, SubjectType=subjectType, 
                              Activity=activities[a_num], summarizedData) )
   }
 }
+
+featureNamesAveraged <- paste(featureNames, "-avg", sep="")
+colnames(outputData) <- c("SubjectID", "SubjectType", "Activity", featureNamesAveraged)
 
 write.table(outputData, "tidied_data.txt", row.name=FALSE)
