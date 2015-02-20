@@ -26,6 +26,29 @@ The column names for the averaged `x` values are changed by appending a "-avg" s
 
 The summarized data set is written into a text file called `tidied_data.txt`.
 
+## CodeBook
+ For the sake of formatting, each column is described using the following characteristics:
+
+- name
+- number of decimal places (if applicable)
+- description
+- possible values (discrete set or range) with descriptions (if applicable)
+
+example:
+
+```
+ColumnName                      1
+    A description of the column name.
+        1
+        2
+        3
+        4
+        5
+```
+
+**NOTE**: Each column occuring after "Activity" has 15 decimal places.
+
+
 ## Description of the Code
 ### A Brief Overview
 Here's a brief summary of what the code does:
@@ -74,7 +97,7 @@ Lines 5-22 check for the existence of the raw data directory (`UCI HAR Dataset`)
 
 **Line 60** merges the two ID vectors into a single vector `IDs`.
 
-**Line 61-63** merge (vertically stack) the x data frames into a single data frame (`xData`), remove the "()" substring from each feature name, and then assign the feature names to the column names of this data frame.
+**Line 61-63** merge (vertically stack) the x data frames into a single data frame (`xData`), remove the "()" substring from each feature name as well as the "BodyBody" substring as it is an error and replaces it with just "Body", and then assign the feature names to the column names of this data frame.
 
 **Lines 67** creates a vector of the activity names `activities` by reading in the `activity_labels.txt` file, where the index of each activity corresponds to its number.
 

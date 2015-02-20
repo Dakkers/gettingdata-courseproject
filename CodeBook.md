@@ -1,25 +1,4 @@
 # CodeBook
-For the sake of formatting, each column is described using the following characteristics:
-
-- name
-- number of decimal places (if applicable)
-- description
-- possible values (discrete set or range) with descriptions (if applicable)
-
-example:
-
-```
-ColumnName                      1
-    A description of the column name.
-        1
-        2
-        3
-        4
-        5
-```
-
-For the sake of brevity, each column occuring after "Activity" has 15 decimal places.
-
 
 ```
 SubjectID                       2
