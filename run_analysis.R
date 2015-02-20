@@ -22,10 +22,10 @@ if (!file.exists("UCI HAR Dataset")) {
 }
 
 # Get the list of features from 'features.txt', get the row numbers that have 
-# 'mean()' in the feature name and put those into a vector, then do this again 
+# 'mean()' or 'meanFreq()' in the name and put those into a vector; do this again 
 # but for 'std()' - these are the data points we want from the data files
 features <- read.table("./UCI HAR Dataset/features.txt", sep=" ", col.names=c("Number", "Name"))
-meanIndices <- features$Number[ grepl("mean()", features$Name, fixed=TRUE) ]
+meanIndices <- features$Number[ grepl("mean()", features$Name, fixed=TRUE) | grepl("meanFreq()", features$Name, fixed=TRUE) ]
 stdIndices  <- features$Number[ grepl("std()",  features$Name, fixed=TRUE) ]
 
 numFeatures <- length(features$Name)  # total number of features
@@ -56,15 +56,15 @@ idsTrain <- scan("./UCI HAR Dataset/train/subject_train.txt",)
 idsTest  <- scan("./UCI HAR Dataset/test/subject_test.txt",  )
 
 # begin to merge components of the data...
-yData <- c(yDataTrain, yDataTest)
-ids   <- c(idsTrain, idsTest)
-x     <- rbind(xDataTrain, xDataTest)
-colnames(x) <- featureNames
+y   <- c(yDataTrain, yDataTest)
+ids <- c(idsTrain, idsTest)
+x   <- rbind(xDataTrain, xDataTest)
+colnames(x) <- gsub("()", "", featureNames, fixed=TRUE)
 
 # create a vector of activity names so that the y-column in the tidied 
 # data frame is the activity names instead of their corresponding numbers
 activities <- read.table("./UCI HAR Dataset/activity_labels.txt")$V2
-y <- activities[yData]
+
 
 # create a vector that represents the 'type' of the subject (i.e. test 
 # vs. train)
